@@ -44,5 +44,3 @@ int main()
 	msgctl(qid, IPC_RMID, 0);
 	return 0;
 }
-
-
