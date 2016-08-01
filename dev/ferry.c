@@ -279,6 +279,7 @@ void captain() {
 
 void car() {
     pid_t localpid = getpid();
+    printf("Car %d comes\n", localpid);
     setpgid(localpid, groupCar);
 
     buf.mtype = REQ_CAR_ARRIVE;
@@ -327,6 +328,7 @@ void car() {
 
 void truck() {
     pid_t localpid = getpid();
+    printf("Truck %d comes\n", localpid);
     setpgid(localpid, groupTruck);
     buf.mtype = REQ_TRUCK_ARRIVE;
     buf.pid = localpid;
