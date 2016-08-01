@@ -435,6 +435,7 @@ int main(void) {
                 lastArrive += maxArriveInterval;
             }
         }
+        srand(time(NULL));
         int isTruck = rand() % 100;
         printf("isTruck: %d\n", isTruck);
         if (isTruck <= truckProb) truck();
