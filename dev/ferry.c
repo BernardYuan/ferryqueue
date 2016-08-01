@@ -20,15 +20,48 @@ int queueWait;
 int queueLate;
 int queueUnloading;
 int queueOnBoard;
+int queueToMain;
+//groupids
+int processCaptain;
+int groupCar = 661;
+int groupTruck = 662;
 
 void destroyQueue() {
-    msgctl(queueToVehicle, IPC_RMID, 0);
-    msgctl(queueToCaptain, IPC_RMID, 0);
-    msgctl(queueWait, IPC_RMID, 0);
-    msgctl(queueLate, IPC_RMID, 0);
-    msgctl(queueUnloading, IPC_RMID, 0);
-    msgctl(queueOnBoard, IPC_RMID, 0);
-    return;
+    if (msgctl(queueToVehicle, IPC_RMID, 0) == -1) {
+        printf("queueToVehicle not destroyed\n");
+    }
+    else printf("queueToVehicle destroyed\n");
+
+    if (msgctl(queueToCaptain, IPC_RMID, 0) == -1) {
+        printf("queueToCaptain not destroyed\n");
+    }
+    else printf("queueToCaptain destroyed\n");
+
+    if (msgctl(queueWait, IPC_RMID, 0) == -1) {
+        printf("queueWait not destroyed\n");
+    }
+    else printf("queueWait destroyed\n");
+
+    if (msgctl(queueLate, IPC_RMID, 0) == -1) {
+        printf("queueLate not destroyed\n");
+    }
+    else printf("queueLate destroyed\n");
+
+
+    if (msgctl(queueUnloading, IPC_RMID, 0) == -1) {
+        printf("queueUnloading not destroyed\n");
+    }
+    else printf("queueUnloading destroyed\n");
+
+    if(msgctl(queueOnBoard, IPC_RMID, 0) == -1) {
+        printf("queueOnBoard not destroyed\n");
+    }
+    else printf("queueUnloading destroyed\n");
+
+    if(msgctl(queueToMain, IPC_RMID, 0) == -1) {
+        printf("queueToMain not destroyed\n");
+    }
+    else printf("queueToMain destroyed\n");
 }
 
 void createQueue() {
@@ -80,13 +113,20 @@ void createQueue() {
         exit(0);
     }
     printf("late queue ID: %d \n", queueOnBoard);
+
+    queueToMain = msgget(IPC_PRIVATE, IPC_CREAT | IPC_EXCL | 0660);
+    if (queueToMain <= 0) {
+        printf("Queue To Main not created\n");
+        destroyQueue();
+        exit(0);
+    }
+    printf("Queue To Main process ID: %d \n", queueOnBoard);
 }
 
 void captain() {
     pid_t localpid = getpid();
     int load = 0;
     while (load < MAX_LOAD) {
-
         // find an arrived car
         while (msgrcv(queueToCaptain, &buf, length, REQ_CAR_ARRIVE, IPC_NOWAIT) != -1) {
             buf.mtype = buf.pid;
@@ -217,11 +257,11 @@ void captain() {
         }
 
         i = 0;
-        while(i<(truckBoard + carBoard)) {
-            if(msgrcv(queueUnloading, &buf, length, ACK_UNLOADED, IPC_NOWAIT) != -1) {
-                if(buf.data == TYPE_TRUCK) printf("Truck %d is unloaded\n", buf.pid);
-                else if(buf.data = TYPE_CAR) printf("Car %d is unloaded\n", buf.pid);
-                i+=1;
+        while (i < (truckBoard + carBoard)) {
+            if (msgrcv(queueUnloading, &buf, length, ACK_UNLOADED, IPC_NOWAIT) != -1) {
+                if (buf.data == TYPE_TRUCK) printf("Truck %d is unloaded\n", buf.pid);
+                else if (buf.data = TYPE_CAR) printf("Car %d is unloaded\n", buf.pid);
+                i += 1;
             }
         }
 
@@ -229,11 +269,65 @@ void captain() {
         load++;
         printf("Unload done, now %d loads finished\n", load);
     }
+    buf.mtype = REQ_TERMINATE;
+    buf.pid = localpid;
+    buf.data = 0;
+    msgsnd(queueToMain, &buf, length, 0);
+    printf("Captain's office hour is over\n");
+    exit(0);
+}
+
+void car() {
+    pid_t localpid = getpid();
+    setpgid(localpid, groupCar);
+
+    buf.mtype = REQ_CAR_ARRIVE;
+    buf.pid = localpid;
+    buf.data = TYPE_CAR;
+    msgsnd(queueToCaptain, &buf, length, 0);
+
+    msgrcv(queueToVehicle, &buf, length, localpid, 0);
+    // find out whether the vehicle is late
+    if (buf.data == RPL_VEHICLE_WAIT) {
+        buf.mtype = REQ_CAR_WAIT;
+        buf.pid = localpid;
+        msgsnd(queueWait, &buf, length, 0);
+        printf("Car %d is waiting\n", localpid);
+        msgrcv(queueToVehicle, &buf, length, localpid, 0);
+    } else if (buf.data == RPL_VEHICLE_LATE) {
+        buf.mtype = REQ_CAR_WAIT;
+        buf.pid = localpid;
+        msgsnd(queueLate, &buf, length, 0);
+        printf("car %d is late\n", localpid);
+        msgrcv(queueToVehicle, &buf, length, localpid, 0);
+
+        if (buf.data == RPL_VEHICLE_WAIT) {
+            buf.mtype = REQ_CAR_WAIT;
+            buf.pid = localpid;
+            buf.data = 0;
+            msgsnd(queueWait, &buf, length, 0);
+            printf("Car %d is moved into the waiting queue\n", localpid);
+            msgrcv(queueToVehicle, &buf, length, localpid, 0);
+        }
+    }
+
+    buf.mtype = ACK_BOARDED;
+    buf.pid = localpid;
+    buf.data = TYPE_CAR;
+    msgsnd(queueOnBoard, &buf, length, 0);
+    printf("Car %d is boarded\n", localpid);
+    msgrcv(queueToVehicle, &buf, length, localpid, 0);
+    printf("Car %d starts unloading\n", localpid);
+    buf.mtype = ACK_UNLOADED;
+    buf.pid = localpid;
+    buf.data = TYPE_CAR;
+    msgsnd(queueUnloading, &buf, length, 0);
+    printf("Car %d leaves\n", localpid);
 }
 
 void truck() {
     pid_t localpid = getpid();
-
+    setpgid(localpid, groupTruck);
     buf.mtype = REQ_TRUCK_ARRIVE;
     buf.pid = localpid;
     buf.data = TYPE_TRUCK;
@@ -245,11 +339,13 @@ void truck() {
         buf.mtype = REQ_TRUCK_WAIT;
         buf.pid = localpid;
         msgsnd(queueWait, &buf, length, 0);
+        printf("Truck %d goes to the waiting queue\n", localpid);
         msgrcv(queueToVehicle, &buf, length, localpid, 0);
     } else if (buf.data == RPL_VEHICLE_LATE) {
         buf.mtype = REQ_TRUCK_LATE;
         buf.pid = localpid;
         msgsnd(queueLate, &buf, length, 0);
+        printf("Truck %d goes to the late queue\n", localpid);
         msgrcv(queueToVehicle, &buf, length, localpid, 0);
 
         if (buf.data == RPL_VEHICLE_WAIT) {
@@ -276,6 +372,28 @@ void truck() {
     printf("Truck %d leaves\n", localpid);
 }
 
+void terminateSimulation() {
+    printf("==================================================================\n");
+    printf("========================Termination starts========================\n");
+    printf("==================================================================\n");
+
+    if (kill(processCaptain, SIGKILL) == -1 && errno == EPERM) {
+        printf("Captain process not killed\n");
+    }
+    else printf("Captain process killed\n");
+
+    if (killpg(groupCar, SIGKILL) == -1 && errno == EPERM) {
+        printf("Cars not killed\n");
+    }
+    else printf("Cars killed\n");
+
+    if (killpg(groupTruck, SIGKILL) == -1 && errno == EPERM) {
+        printf("Trucks not killed\n");
+    }
+    else printf("Trucks killed\n");
+
+}
+
 int main(void) {
     pid_t localpid = getpid();
 
@@ -293,9 +411,19 @@ int main(void) {
     //child process the captain
     if (!(pid = fork())) captain();
     else {
+        processCaptain = pid;
         while (1) {
             //check termination condition
             //and kill all the processes
+            if (msgrcv(queueToMain, &buf, length, REQ_TERMINATE, IPC_NOWAIT) != -1) {
+                printf("The captain informs the main function to terminate\n");
+                terminateSimulation();
+                destroyQueue();
+                printf("Simulation ends\n");
+                exit(0);
+            }
+
+
             gettimeofday(&current, NULL);
             elapsed += (current.tv_sec - last.tv_sec) * 1000000 + (current.tv_usec - last.tv_usec);
             last = current;

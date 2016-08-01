@@ -4,6 +4,8 @@
 
 #ifndef FERRYQUEUE_FERRY_H
 #define FERRYQUEUE_FERRY_H
+
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -35,7 +37,7 @@
 #define ACK_BOARDED 11
 #define REQ_UNLOAD 12
 #define ACK_UNLOADED 13
-
+#define REQ_TERMINATE 14
 typedef struct mymsgbuf {
     long mtype;
     pid_t pid;
