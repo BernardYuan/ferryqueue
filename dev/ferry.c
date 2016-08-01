@@ -132,7 +132,7 @@ void captain() {
             buf.mtype = buf.pid;
             buf.pid = localpid;
             buf.data = RPL_VEHICLE_WAIT;
-            printf("Get Car %d into waiting queue\n", buf.mtype;
+            printf("Get Car %ld into waiting queue\n", buf.mtype);
             msgsnd(queueToVehicle, &buf, length, 0);
         }
 
@@ -141,7 +141,7 @@ void captain() {
             buf.mtype = buf.pid;
             buf.pid = localpid;
             buf.data = RPL_VEHICLE_WAIT;
-            printf("Get truck %d into waiting queue\n", buf.mtype);
+            printf("Get truck %ld into waiting queue\n", buf.mtype);
             msgsnd(queueToVehicle, &buf, length, 0);
         }
 
@@ -156,14 +156,14 @@ void captain() {
                 buf.mtype = buf.pid;
                 buf.pid = localpid;
                 buf.data = RPL_VEHICLE_LATE;
-                printf("Get car %d into the late queue\n", buf.mtype);
+                printf("Get car %ld into the late queue\n", buf.mtype);
                 msgsnd(queueToVehicle, &buf, length, 0);
             }
             while (msgrcv(queueToCaptain, &buf, length, REQ_TRUCK_ARRIVE, IPC_NOWAIT) != -1) {
                 buf.mtype = buf.pid;
                 buf.pid = localpid;
                 buf.data = RPL_VEHICLE_LATE;
-                printf("Get truck %d into the late queue\n", buf.mtype);
+                printf("Get truck %ld into the late queue\n", buf.mtype);
                 msgsnd(queueToVehicle, &buf, length, 0);
             }
 
@@ -172,7 +172,7 @@ void captain() {
                 buf.mtype = buf.pid;
                 buf.data = RPL_BOARDING;
                 buf.pid = localpid;
-                printf("Load Truck %d from waiting queue\n", buf.mtype);
+                printf("Load Truck %ld from waiting queue\n", buf.mtype);
                 msgsnd(queueToVehicle, &buf, length, 0);
                 spotsOnFerry += SIZE_TRUCK;
                 trucksOnFerry++;
@@ -182,7 +182,7 @@ void captain() {
                 buf.mtype = buf.pid;
                 buf.data = RPL_BOARDING;
                 buf.pid = localpid;
-                printf("Load Car %d from waiting queue\n", buf.mtype);
+                printf("Load Car %ld from waiting queue\n", buf.mtype);
                 msgsnd(queueToVehicle, &buf, length, 0);
                 spotsOnFerry += SIZE_CAR;
             }
@@ -196,7 +196,7 @@ void captain() {
                 msgsnd(queueToVehicle, &buf, length, 0);
                 spotsOnFerry += SIZE_TRUCK;
                 trucksOnFerry++;
-                printf("Load truck %d from late queue\n", buf.mtype);
+                printf("Load truck %ld from late queue\n", buf.mtype);
             }
             // check the late queue for cars
             while (spotsOnFerry < MAXSIZE_FERRY && (msgrcv(queueLate, &buf, length, REQ_CAR_LATE, IPC_NOWAIT) != -1)) {
@@ -205,7 +205,7 @@ void captain() {
                 buf.pid = localpid;
                 msgsnd(queueToVehicle, &buf, length, 0);
                 spotsOnFerry += SIZE_CAR;
-                printf("Load car %d from late queue\n", buf.mtype);
+                printf("Load car %ld from late queue\n", buf.mtype);
             }
         }
 
@@ -216,14 +216,14 @@ void captain() {
             buf.pid = localpid;
             buf.data = RPL_VEHICLE_WAIT;
             msgsnd(queueToVehicle, &buf, length, 0);
-            printf("Get car %d from late line to waiting line\n", buf.mtype);
+            printf("Get car %ld from late line to waiting line\n", buf.mtype);
         }
         while (msgrcv(queueLate, &buf, length, REQ_TRUCK_LATE, IPC_NOWAIT) != -1) {
             buf.mtype = buf.pid;
             buf.pid = localpid;
             buf.data = RPL_VEHICLE_WAIT;
             msgsnd(queueToVehicle, &buf, length, 0);
-            printf("Get car %d from late line to waiting line\n", buf.mtype);
+            printf("Get car %ld from late line to waiting line\n", buf.mtype);
         }
 
         int boardAck = 0;
