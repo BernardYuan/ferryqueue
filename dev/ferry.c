@@ -409,6 +409,10 @@ void terminateSimulation() {
     }
     else printf("Trucks killed\n");
 
+    int status;
+    while(waitpid(-1, &status, 0) > 0) ;
+    printf("All processed ends\n");
+
 }
 
 int main(void) {
