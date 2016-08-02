@@ -4,7 +4,6 @@
 
 #include "ferry.h"
 
-mess_t buf;
 int length;
 // time parameters
 struct timeval last;
@@ -124,6 +123,7 @@ void createQueue() {
 }
 
 void captain() {
+    mess_t buf;
     pid_t localpid = getpid();
     int load = 0;
     while (load < MAX_LOAD) {
@@ -279,6 +279,7 @@ void captain() {
 }
 
 void car() {
+    mess_t buf;
     pid_t localpid = getpid();
     printf("CARCARCARCARCARCAR    Car %d comes\n", localpid);
     setpgid(localpid, groupCar);
@@ -331,6 +332,7 @@ void car() {
 }
 
 void truck() {
+    mess_t buf;
     pid_t localpid = getpid();
     printf("TRUCKTRUCKTRUCKTRU    Truck %d comes\n", localpid);
     setpgid(localpid, groupTruck);
@@ -407,6 +409,7 @@ int main(void) {
 
     // define the length of message
     length = sizeof(mess_t) - sizeof(long);
+
     printf("Input the maximum interval (integer, ms) of the arrival of each vehicle:");
     scanf("%lld", &maxArriveInterval);
     printf("Input the probability of truck (integer, %%):");
@@ -415,6 +418,8 @@ int main(void) {
     // start time
     gettimeofday(&last, NULL);
 
+    //buffer in main
+    mess_t bufMain;
     pid_t pid;
     //child process the captain
     if (!(pid = fork())) captain();
@@ -423,7 +428,7 @@ int main(void) {
         while (1) {
             //check termination condition
             //and kill all the processes
-            if (msgrcv(queueToMain, &buf, length, REQ_TERMINATE, IPC_NOWAIT) != -1) {
+            if (msgrcv(queueToMain, &bufMain, length, REQ_TERMINATE, IPC_NOWAIT) != -1) {
                 printf("The captain informs the main function to terminate\n");
                 terminateSimulation();
                 destroyQueue();
