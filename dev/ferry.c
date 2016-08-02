@@ -409,7 +409,7 @@ void terminateSimulation() {
     }
     else printf("Trucks killed\n");
 
-    sleep(2e6);
+    usleep(2e6);
     int status;
     pid_t waited;
     while((waited = waitpid(-1, &status, WNOHANG)) > 0) {
