@@ -274,7 +274,7 @@ void captain() {
 //        //starts sailing
 //        load++;
 //        printf("CAPTAINCAPTAINCAP     Unload done, now %d loads finished\n", load);
-//    }
+    }
 //    bufCaptain.mtype = REQ_TERMINATE;
 //    bufCaptain.pid = localpid;
 //    bufCaptain.data = 0;
