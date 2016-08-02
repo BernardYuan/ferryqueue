@@ -345,7 +345,7 @@ void truck() {
 
     msgrcv(queueToVehicle, &bufTruck, length, localpid, 0);
     printf("TRUCKTRUCKTRUCKTRU    Buf address: %p\n", &bufTruck);
-    printf("TRUCKTRUCKTRUCKTRU    buffer type:%d\n", bufTruck.mtype);
+    printf("TRUCKTRUCKTRUCKTRU    buffer type:%ld\n", bufTruck.mtype);
     printf("TRUCKTRUCKTRUCKTRU    buffer data:%d\n", bufTruck.data);
     // find out whether the vehicle is late
     if (bufTruck.data == RPL_VEHICLE_WAIT) {
