@@ -424,9 +424,9 @@ int main(void) {
     length = sizeof(mess_t) - sizeof(long);
     printf("size of struct: %d\n", sizeof(mess_t));
     printf("size of long: %d\n", sizeof(long));
-    printf("size of mtype: %d\n", sizeof(mess_t.mtype));
-    printf("size of pid_t: %d\n", sizeof(mess_t.pid));
-    printf("size of data: %d\n", sizeof(mess_t.data));
+    printf("size of mtype: %d\n", sizeof(bufMain.mtype));
+    printf("size of pid_t: %d\n", sizeof(bufMain.pid));
+    printf("size of data: %d\n", sizeof(bufMain.data));
     printf("length:%d\n", length);
 
     printf("Input the maximum interval (integer, ms) of the arrival of each vehicle:");
