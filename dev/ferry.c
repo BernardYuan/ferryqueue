@@ -289,7 +289,7 @@ void car() {
     msgsnd(queueToCaptain, &buf, length, 0);
 
     msgrcv(queueToVehicle, &buf, length, localpid, 0);
-    printf("buffer data:%d\n", buf.data);
+    printf("CARCARCARCARCARCAR    buffer data:%d\n", buf.data);
 
     // find out whether the vehicle is late
     if (buf.data == RPL_VEHICLE_WAIT) {
@@ -339,6 +339,7 @@ void truck() {
     msgsnd(queueToCaptain, &buf, length, 0);
 
     msgrcv(queueToVehicle, &buf, length, localpid, 0);
+    printf("CARCARCARCARCARCAR    buffer data:%d\n", buf.data);
     // find out whether the vehicle is late
     if (buf.data == RPL_VEHICLE_WAIT) {
         buf.mtype = REQ_TRUCK_WAIT;
