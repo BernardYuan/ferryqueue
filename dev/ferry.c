@@ -151,6 +151,7 @@ void captain() {
         int spotsOnFerry = 0;
         int i;
         int trucksOnFerry = 0;
+        int carsOnFerry = 0;
         printf("CAPTAINCAPTAINCAP     STARTS LOADING\n");
 
         while (spotsOnFerry < MAXSIZE_FERRY) {
@@ -177,20 +178,24 @@ void captain() {
                 bufCaptain.mtype = bufCaptain.pid;
                 bufCaptain.data = RPL_BOARDING;
                 bufCaptain.pid = localpid;
-                printf("CAPTAINCAPTAINCAP     Load Truck %ld from waiting queue\n", bufCaptain.mtype);
+
                 msgsnd(queueToVehicle, &bufCaptain, length, 0);
                 spotsOnFerry += SIZE_TRUCK;
                 trucksOnFerry++;
+                printf("CAPTAINCAPTAINCAP     Load Truck %ld from waiting queue, now %d trucks and %d cars on ferry\n", bufCaptain.mtype, trucksOnFerry, carsOnFerry);
             }
 
             while (spotsOnFerry < MAXSIZE_FERRY && (msgrcv(queueWait, &bufCaptain, length, REQ_CAR_WAIT, IPC_NOWAIT) != -1)) {
                 bufCaptain.mtype = bufCaptain.pid;
                 bufCaptain.data = RPL_BOARDING;
                 bufCaptain.pid = localpid;
-                printf("CAPTAINCAPTAINCAP     Load Car %ld from waiting queue\n", bufCaptain.mtype);
+
                 msgsnd(queueToVehicle, &bufCaptain, length, 0);
                 spotsOnFerry += SIZE_CAR;
+                carsOnFerry ++;
+                printf("CAPTAINCAPTAINCAP     Load Car %ld from waiting queue, now %d trucks and %d cars on ferry\n", bufCaptain.mtype, trucksOnFerry, carsOnFerry);
             }
+
             // check the late queue for trucks
             while (trucksOnFerry < MAXNUM_TRUCK && spotsOnFerry <= MAXSIZE_FERRY - 2 &&
                    (msgrcv(queueLate, &bufCaptain, length, REQ_TRUCK_LATE, IPC_NOWAIT) != -1)) {
@@ -201,7 +206,7 @@ void captain() {
                 msgsnd(queueToVehicle, &bufCaptain, length, 0);
                 spotsOnFerry += SIZE_TRUCK;
                 trucksOnFerry++;
-                printf("CAPTAINCAPTAINCAP     Load truck %ld from late queue\n", bufCaptain.mtype);
+                printf("CAPTAINCAPTAINCAP     Load truck %ld from late queue, now %d trucks and %d cars on ferry\n", bufCaptain.mtype, trucksOnFerry, carsOnFerry);
             }
             // check the late queue for cars
             while (spotsOnFerry < MAXSIZE_FERRY && (msgrcv(queueLate, &bufCaptain, length, REQ_CAR_LATE, IPC_NOWAIT) != -1)) {
@@ -210,7 +215,8 @@ void captain() {
                 bufCaptain.pid = localpid;
                 msgsnd(queueToVehicle, &bufCaptain, length, 0);
                 spotsOnFerry += SIZE_CAR;
-                printf("CAPTAINCAPTAINCAP     Load car %ld from late queue\n", bufCaptain.mtype);
+                carsOnFerry ++;
+                printf("CAPTAINCAPTAINCAP     Load car %ld from late queue, now %d trucks and %d cars on ferry\n", bufCaptain.mtype, trucksOnFerry, carsOnFerry);
             }
         }
 
@@ -344,26 +350,8 @@ void truck() {
     bufTruck.pid = localpid;
     bufTruck.data = TYPE_TRUCK;
 
-    if(msgsnd(queueToCaptain, &bufTruck, length, 0)==-1) {
-        printf("TRUCKTRUCKTRUCKTRU    Send Message Error\n");
-    }
-    else {
-        printf("TRUCKTRUCKTRUCKTRU    truck send information\n");
-        printf("TRUCKTRUCKTRUCKTRU    buffer address: %p\n", &bufTruck);
-        printf("TRUCKTRUCKTRUCKTRU    buffer type: %ld\n", bufTruck.mtype);
-        printf("TRUCKTRUCKTRUCKTRU    buffer pid: %d\n", bufTruck.pid);
-        printf("TRUCKTRUCKTRUCKTRU    buffer data: %d\n", bufTruck.data);
-    }
-
-    if(msgrcv(queueToVehicle, &bufTruck, length, localpid, 0) == -1) {
-        printf("TRUCKTRUCKTRUCKTRU    Receive Message Error\n");
-    }
-    else {
-        printf("TRUCKTRUCKTRUCKTRU    buffer address: %p\n", &bufTruck);
-        printf("TRUCKTRUCKTRUCKTRU    buffer type:%ld\n", bufTruck.mtype);
-        printf("TRUCKTRUCKTRUCKTRU    buffer pid:%ld\n", bufTruck.pid);
-        printf("TRUCKTRUCKTRUCKTRU    buffer data:%d\n", bufTruck.data);
-    }
+    if(msgsnd(queueToCaptain, &bufTruck, length, 0)==-1);
+    if(msgrcv(queueToVehicle, &bufTruck, length, localpid, 0) == -1);
 
 //
 //     find out whether the vehicle is late
