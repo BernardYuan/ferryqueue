@@ -148,7 +148,7 @@ void captain() {
         int spotsOnFerry = 0;
         int i;
         int trucksOnFerry = 0;
-        printf("CAPTAINCAPTAINCAP     STARTING LOADING\n");
+        printf("CAPTAINCAPTAINCAP     STARTS LOADING\n");
 
         while (spotsOnFerry < MAXSIZE_FERRY) {
             // now get all late vehicles into the late queue
@@ -159,6 +159,7 @@ void captain() {
                 printf("CAPTAINCAPTAINCAP     Get car %ld into the late queue\n", buf.mtype);
                 msgsnd(queueToVehicle, &buf, length, 0);
             }
+
             while (msgrcv(queueToCaptain, &buf, length, REQ_TRUCK_ARRIVE, IPC_NOWAIT) != -1) {
                 buf.mtype = buf.pid;
                 buf.pid = localpid;
@@ -288,6 +289,8 @@ void car() {
     msgsnd(queueToCaptain, &buf, length, 0);
 
     msgrcv(queueToVehicle, &buf, length, localpid, 0);
+    printf("buffer data:%d\n", buf.data);
+
     // find out whether the vehicle is late
     if (buf.data == RPL_VEHICLE_WAIT) {
         buf.mtype = REQ_CAR_WAIT;
