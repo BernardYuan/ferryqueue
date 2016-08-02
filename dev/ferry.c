@@ -299,9 +299,6 @@ void car() {
     msgsnd(queueToCaptain, &bufCar, length, 0);
 
     msgrcv(queueToVehicle, &bufCar, length, localpid, 0);
-    printf("CARCARCARCARCARCAR    buffer address: %p\n", &bufCar);
-    printf("CARCARCARCARCARCAR    buffer type:%ld\n", bufCar.mtype);
-    printf("CARCARCARCARCARCAR    buffer data:%d\n", bufCar.data);
 
     // find out whether the vehicle is late
     if (bufCar.data == RPL_VEHICLE_WAIT) {
@@ -464,7 +461,7 @@ int main(void) {
         }
         srand(time(NULL));
         int isTruck = rand() % 100;
-        printf("isTruck: %d\n", isTruck);
+//        printf("isTruck: %d\n", isTruck);
         if (isTruck <= truckProb) truck();
         else car();
     }
