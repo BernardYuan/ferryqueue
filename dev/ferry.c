@@ -450,6 +450,7 @@ int main(void) {
 
     //buffer in main
     pid_t pid;
+    createQueue();
     //child process the captain
     if (!(pid = fork())) captain();
     else {
