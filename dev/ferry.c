@@ -154,6 +154,7 @@ void captain() {
         printf("CAPTAINCAPTAINCAP     STARTS LOADING\n");
 
         while (spotsOnFerry < MAXSIZE_FERRY) {
+            printf("CAPTAINCAPTAINCAP     Stil not Full\n");
             // now get all late vehicles into the late queue
             while (msgrcv(queueToCaptain, &bufCaptain, length, REQ_CAR_ARRIVE, IPC_NOWAIT) != -1) {
                 bufCaptain.mtype = bufCaptain.pid;
@@ -344,18 +345,27 @@ void truck() {
     bufTruck.mtype = REQ_TRUCK_ARRIVE;
     bufTruck.pid = localpid;
     bufTruck.data = TYPE_TRUCK;
-    printf("TRUCKTRUCKTRUCKTRU    truck send information\n");
-    printf("TRUCKTRUCKTRUCKTRU    buffer address: %p\n", &bufTruck);
-    printf("TRUCKTRUCKTRUCKTRU    buffer type: %ld\n", bufTruck.mtype);
-    printf("TRUCKTRUCKTRUCKTRU    buffer pid: %d\n", bufTruck.pid);
-    printf("TRUCKTRUCKTRUCKTRU    buffer data: %d\n", bufTruck.data);
 
-    msgsnd(queueToCaptain, &bufTruck, length, 0);
-    msgrcv(queueToVehicle, &bufTruck, length, localpid, 0);
+    if(msgsnd(queueToCaptain, &bufTruck, length, 0)==-1) {
+        printf("TRUCKTRUCKTRUCKTRU    Send Message Error\n");
+    }
+    else {
+        printf("TRUCKTRUCKTRUCKTRU    truck send information\n");
+        printf("TRUCKTRUCKTRUCKTRU    buffer address: %p\n", &bufTruck);
+        printf("TRUCKTRUCKTRUCKTRU    buffer type: %ld\n", bufTruck.mtype);
+        printf("TRUCKTRUCKTRUCKTRU    buffer pid: %d\n", bufTruck.pid);
+        printf("TRUCKTRUCKTRUCKTRU    buffer data: %d\n", bufTruck.data);
+    }
 
-    printf("TRUCKTRUCKTRUCKTRU    buffer address: %p\n", &bufTruck);
-    printf("TRUCKTRUCKTRUCKTRU    buffer type:%ld\n", bufCar.mtype);
-    printf("TRUCKTRUCKTRUCKTRU    buffer data:%d\n", bufCar.data);
+    if(msgrcv(queueToVehicle, &bufTruck, length, localpid, 0) == -1) {
+        printf("TRUCKTRUCKTRUCKTRU    Receive Message Error\n");
+    }
+    else {
+        printf("TRUCKTRUCKTRUCKTRU    buffer address: %p\n", &bufTruck);
+        printf("TRUCKTRUCKTRUCKTRU    buffer type:%ld\n", bufCar.mtype);
+        printf("TRUCKTRUCKTRUCKTRU    buffer data:%d\n", bufCar.data);
+    }
+
 //
 //     find out whether the vehicle is late
 //    if (bufTruck.data == RPL_VEHICLE_WAIT) {
