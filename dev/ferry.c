@@ -308,7 +308,7 @@ void car() {
         printf("CARCARCARCARCARCAR    Car %d is waiting\n", localpid);
         msgrcv(queueToVehicle, &bufCar, length, localpid, 0);
     } else if (bufCar.data == RPL_VEHICLE_LATE) {
-        bufCar.mtype = REQ_CAR_WAIT;
+        bufCar.mtype = REQ_CAR_LATE;
         bufCar.pid = localpid;
         msgsnd(queueLate, &bufCar, length, 0);
         printf("CARCARCARCARCARCAR    Car %d is late\n", localpid);
