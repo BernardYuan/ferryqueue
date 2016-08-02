@@ -49,8 +49,8 @@
       <file leaf-file-name="ferry.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dev/ferry.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="305">
-              <caret line="366" column="65" selection-start-line="366" selection-start-column="65" selection-end-line="366" selection-end-column="65" />
+            <state relative-caret-position="290">
+              <caret line="157" column="54" selection-start-line="157" selection-start-column="54" selection-end-line="157" selection-end-column="54" />
               <folding />
             </state>
           </provider>
@@ -512,8 +512,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dev/ferry.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="366" column="65" selection-start-line="366" selection-start-column="65" selection-end-line="366" selection-end-column="65" />
+        <state relative-caret-position="290">
+          <caret line="157" column="54" selection-start-line="157" selection-start-column="54" selection-end-line="157" selection-end-column="54" />
           <folding />
         </state>
       </provider>

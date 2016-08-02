@@ -154,7 +154,7 @@ void captain() {
         printf("CAPTAINCAPTAINCAP     STARTS LOADING\n");
 
         while (spotsOnFerry < MAXSIZE_FERRY) {
-            printf("CAPTAINCAPTAINCAP     Stil not Full\n");
+//            printf("CAPTAINCAPTAINCAP     Stil not Full\n");
             // now get all late vehicles into the late queue
             while (msgrcv(queueToCaptain, &bufCaptain, length, REQ_CAR_ARRIVE, IPC_NOWAIT) != -1) {
                 bufCaptain.mtype = bufCaptain.pid;
