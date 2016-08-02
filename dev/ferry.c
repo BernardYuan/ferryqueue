@@ -362,8 +362,9 @@ void truck() {
     }
     else {
         printf("TRUCKTRUCKTRUCKTRU    buffer address: %p\n", &bufTruck);
-        printf("TRUCKTRUCKTRUCKTRU    buffer type:%ld\n", bufCar.mtype);
-        printf("TRUCKTRUCKTRUCKTRU    buffer data:%d\n", bufCar.data);
+        printf("TRUCKTRUCKTRUCKTRU    buffer type:%ld\n", bufTruck.mtype);
+        printf("TRUCKTRUCKTRUCKTRU    buffer pid:%ld\n", bufTruck.pid);
+        printf("TRUCKTRUCKTRUCKTRU    buffer data:%d\n", bufTruck.data);
     }
 
 //
