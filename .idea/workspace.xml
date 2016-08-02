@@ -12,6 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ac316586-0603-44de-8ed5-2dbb0378b568" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/dev/ferry.c" afterPath="$PROJECT_DIR$/dev/ferry.c" />
     </list>
     <ignored path="ferryqueue.iws" />
@@ -49,7 +50,7 @@
         <entry file="file://$PROJECT_DIR$/dev/ferry.c">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="458">
-              <caret line="414" column="43" selection-start-line="414" selection-start-column="43" selection-end-line="414" selection-end-column="43" />
+              <caret line="414" column="45" selection-start-line="414" selection-start-column="45" selection-end-line="414" selection-end-column="45" />
               <folding />
             </state>
           </provider>
@@ -512,7 +513,7 @@
     <entry file="file://$PROJECT_DIR$/dev/ferry.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="458">
-          <caret line="414" column="43" selection-start-line="414" selection-start-column="43" selection-end-line="414" selection-end-column="43" />
+          <caret line="414" column="45" selection-start-line="414" selection-start-column="45" selection-end-line="414" selection-end-column="45" />
           <folding />
         </state>
       </provider>

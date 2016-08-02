@@ -411,7 +411,7 @@ void terminateSimulation() {
 
     int status;
     pid_t waited;
-    while((waited = waitpid(-1, &status, 0)) > 0) {
+    while((waited = waitpid(-1, &status, WNOHANG)) > 0) {
         printf("Process %d exist\n", waited);
     };
     printf("All processed ends\n");
