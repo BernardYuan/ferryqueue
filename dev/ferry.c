@@ -290,6 +290,7 @@ void car() {
     msgsnd(queueToCaptain, &buf, length, 0);
 
     msgrcv(queueToVehicle, &buf, length, localpid, 0);
+    printf("CARCARCARCARCARCAR    buffer address: %p\n", &buf);
     printf("CARCARCARCARCARCAR    buffer type:%ld\n", buf.mtype);
     printf("CARCARCARCARCARCAR    buffer data:%d\n", buf.data);
 
@@ -342,6 +343,7 @@ void truck() {
     msgsnd(queueToCaptain, &buf, length, 0);
 
     msgrcv(queueToVehicle, &buf, length, localpid, 0);
+    printf("TRUCKTRUCKTRUCKTRU    Buf address: %p\n", &buf);
     printf("TRUCKTRUCKTRUCKTRU    buffer type:%d\n", buf.mtype);
     printf("TRUCKTRUCKTRUCKTRU    buffer data:%d\n", buf.data);
     // find out whether the vehicle is late
