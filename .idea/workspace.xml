@@ -37,8 +37,8 @@
       <file leaf-file-name="ferry.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dev/ferry.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="28" column="24" selection-start-line="28" selection-start-column="24" selection-end-line="28" selection-end-column="24" />
+            <state relative-caret-position="351">
+              <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
               <folding>
                 <element signature="e#104#122#0" expanded="true" />
               </folding>
@@ -49,8 +49,8 @@
       <file leaf-file-name="ferry.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/dev/ferry.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="606">
-              <caret line="341" column="63" selection-start-line="341" selection-start-column="63" selection-end-line="341" selection-end-column="63" />
+            <state relative-caret-position="411">
+              <caret line="342" column="62" selection-start-line="342" selection-start-column="62" selection-end-line="342" selection-end-column="62" />
               <folding />
             </state>
           </provider>
@@ -496,8 +496,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dev/ferry.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="28" column="24" selection-start-line="28" selection-start-column="24" selection-end-line="28" selection-end-column="24" />
+        <state relative-caret-position="351">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
           <folding>
             <element signature="e#104#122#0" expanded="true" />
           </folding>
@@ -506,8 +506,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dev/ferry.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="606">
-          <caret line="341" column="63" selection-start-line="341" selection-start-column="63" selection-end-line="341" selection-end-column="63" />
+        <state relative-caret-position="411">
+          <caret line="342" column="62" selection-start-line="342" selection-start-column="62" selection-end-line="342" selection-end-column="62" />
           <folding />
         </state>
       </provider>
