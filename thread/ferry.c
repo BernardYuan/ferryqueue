@@ -38,6 +38,36 @@ sem_t semTruckUnload;
 sem_t semCarUnload;
 sem_t semTruckLeft;
 sem_t semCarLeft;
+void releaseResource() {
+    removeMutex(&mtxFerryStatus);
+
+    removeMutex(&mtxNumTruckWait);
+    removeSem(&semNumTruckWait);
+    removeSem(&semTruckWait);
+
+    removeMutex(&mtxNumTruckLate);
+    removeSem(&semNumTruckLate);
+    removeSem(&semTruckLate);
+
+    removeMutex(&mtxNumCarWait);
+    removeSem(&semNumCarWait);
+    removeSem(&semCarWait);
+
+    removeMutex(&mtxNumCarLate);
+    removeSem(&semNumCarLate);
+    removeSem(&semCarLate);
+
+    removeMutex(&mtxTerminate);
+
+    removeSem(&semTruckSwitch);
+    removeSem(&semCarSwitch);
+    removeSem(&semTruckBoard);
+    removeSem(&semCarBoard);
+    removeSem(&semTruckUnload);
+    removeSem(&semCarUnload);
+    removeSem(&semTruckLeft);
+    removeSem(&semCarLeft);
+}
 
 void initMutex(pthread_mutex_t *mtx, const pthread_mutexattr_t *attr) {
     if (pthread_mutex_init(mtx, attr) == 0) printf("Initializing mutex success\n");
@@ -101,36 +131,7 @@ void init() {
     initSem(&semCarLeft, 1, 0);
 }
 
-void releaseResource() {
-    removeMutex(&mtxFerryStatus);
 
-    removeMutex(&mtxNumTruckWait);
-    removeSem(&semNumTruckWait);
-    removeSem(&semTruckWait);
-
-    removeMutex(&mtxNumTruckLate);
-    removeSem(&semNumTruckLate);
-    removeSem(&semTruckLate);
-
-    removeMutex(&mtxNumCarWait);
-    removeSem(&semNumCarWait);
-    removeSem(&semCarWait);
-
-    removeMutex(&mtxNumCarLate);
-    removeSem(&semNumCarLate);
-    removeSem(&semCarLate);
-
-    removeMutex(&mtxTerminate);
-
-    removeSem(&semTruckSwitch);
-    removeSem(&semCarSwitch);
-    removeSem(&semTruckBoard);
-    removeSem(&semCarBoard);
-    removeSem(&semTruckUnload);
-    removeSem(&semCarUnload);
-    removeSem(&semTruckLeft);
-    removeSem(&semCarLeft);
-}
 
 void sail() {
     pthread_mutex_lock(&mtxFerryStatus);
@@ -196,7 +197,7 @@ void *captain(void *arg) {
             if (spotsOnFerry < SIZE_FERRY - 2 && truckOnFerry < MAX_TRUCK) {
                 pthread_mutex_lock(&mtxNumTruckLate);
                 if (numTruckLate > 0) {
-                    sem_wait(semNumTruckLate);
+                    sem_wait(&semNumTruckLate);
                     numTruckLate--;
                     truckOnFerry++;
                     spotsOnFerry += SIZE_TRUCK;
@@ -335,17 +336,17 @@ void *car(void *arg) {
 
         if(checkStatus()==FERRY_LOADING) {
             sem_post(&semCarBoard);
-            printf("Car %d is boarded\n");
+            printf("Car %d is boarded\n", id);
         }
         else if(checkStatus()==FERRY_BOARDED) {
             sem_post(&semCarSwitch);
-            printf("Car %d is switched into waiting queue\n");
+            printf("Car %d is switched into waiting queue\n",id);
             pthread_mutex_lock(&mtxNumCarWait);
             numCarWait ++;
             pthread_mutex_unlock(&mtxNumCarWait);
             sem_post(&semNumCarWait);
             sem_wait(&semCarWait);
-            printf("Car %d is boarded\n");
+            printf("Car %d is boarded\n", id);
             sem_post(&semCarBoard);
         }
     }
@@ -356,12 +357,12 @@ void *car(void *arg) {
         pthread_mutex_unlock(&mtxNumCarWait);
         sem_post(&semNumCarWait);
         sem_wait(&semCarWait);
-        printf("Car %d is boarded\n");
+        printf("Car %d is boarded\n", id);
         sem_post(&semCarBoard);
     }
 
     sem_wait(&semCarUnload);
-    printf("Car %d is unloaded and leaves\n");
+    printf("Car %d is unloaded and leaves\n", id);
     sem_post(&semCarLeft);
 }
 
@@ -378,17 +379,17 @@ void *truck(void *arg) {
 
         if(checkStatus()==FERRY_LOADING) {
             sem_post(&semTruckBoard);
-            printf("Truck %d is boarded\n");
+            printf("Truck %d is boarded\n", id);
         }
         else if(checkStatus()==FERRY_BOARDED) {
             sem_post(&semTruckSwitch);
-            printf("Truck %d is switched into waiting queue\n");
+            printf("Truck %d is switched into waiting queue\n", id);
             pthread_mutex_lock(&mtxNumTruckWait);
             numTruckWait ++;
             pthread_mutex_unlock(&mtxNumTruckWait);
             sem_post(&semNumTruckWait);
             sem_wait(&semTruckWait);
-            printf("Truck %d is boarded\n");
+            printf("Truck %d is boarded\n", id);
             sem_post(&semTruckBoard);
         }
     }
@@ -399,12 +400,12 @@ void *truck(void *arg) {
         pthread_mutex_unlock(&mtxNumTruckWait);
         sem_post(&semNumTruckWait);
         sem_wait(&semTruckWait);
-        printf("Truck %d is boarded\n");
+        printf("Truck %d is boarded\n", id);
         sem_post(&semTruckBoard);
     }
 
     sem_wait(&semTruckUnload);
-    printf("Truck %d is unloaded and leaves\n");
+    printf("Truck %d is unloaded and leaves\n", id);
     sem_post(&semTruckLeft);
 }
 
