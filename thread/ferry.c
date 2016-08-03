@@ -267,6 +267,7 @@ void *captain(void *arg) {
         pthread_mutex_unlock(&mtxNumCarLate);
         pthread_mutex_unlock(&mtxNumTruckLate);
 
+        printf("Need to move %d trucks and %d cars from late arrival to waiting\n", truckSwitch, carSwitch);
         for(i=0;i<truckSwitch;i++) {
             sem_wait(&semTruckSwitch);
             printf("Moved one truck from late queue into waiting queue\n");
