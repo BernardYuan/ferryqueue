@@ -348,9 +348,8 @@ void truck() {
     bufTruck.mtype = REQ_TRUCK_ARRIVE;
     bufTruck.pid = localpid;
     bufTruck.data = TYPE_TRUCK;
-
-    if(msgsnd(queueToCaptain, &bufTruck, length, 0)==-1);
-    if(msgrcv(queueToVehicle, &bufTruck, length, localpid, 0) == -1);
+    msgsnd(queueToCaptain, &bufTruck, length, 0);
+    msgrcv(queueToVehicle, &bufTruck, length, localpid, 0);
 
 //
 //     find out whether the vehicle is late
