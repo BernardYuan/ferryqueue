@@ -144,12 +144,11 @@ void sail() {
 
 void *captain(void *arg) {
     int load = 0;
-
     while (load < MAX_LOAD) {
         pthread_mutex_lock(&mtxFerryStatus);
         ferryStatus = FERRY_LOADING;
         pthread_mutex_unlock(&mtxFerryStatus);
-        printf("Ferry starts loading\n");
+        printf("===============Ferry starts loading===============\n");
 
         // check number of trucks
         int truckOnFerry = 0;
@@ -164,7 +163,7 @@ void *captain(void *arg) {
                 spotsOnFerry += SIZE_TRUCK;
                 pthread_mutex_unlock(&mtxNumTruckWait);
                 sem_post(&semTruckWait);
-                printf("Load one truck from the waiting queue now %d trucks and %d cars loaded\n", truckOnFerry,
+                printf("CAPTAINCAPTAINCAPTAIN    Load one truck from the waiting queue now %d trucks and %d cars loaded\n", truckOnFerry,
                        carOnFerry);
 
             }
@@ -183,7 +182,7 @@ void *captain(void *arg) {
                 spotsOnFerry += SIZE_CAR;
                 pthread_mutex_unlock(&mtxNumCarWait);
                 sem_post(&semCarWait);
-                printf("Load one car from the waiting queue now %d trucks and %d cars loaded\n", truckOnFerry,
+                printf("CAPTAINCAPTAINCAPTAIN    Load one car from the waiting queue now %d trucks and %d cars loaded\n", truckOnFerry,
                        carOnFerry);
             }
             else {
@@ -202,7 +201,7 @@ void *captain(void *arg) {
                     truckOnFerry++;
                     spotsOnFerry += SIZE_TRUCK;
                     sem_post(&semTruckLate);
-                    printf("Load one truck from the late queue, now %d trucks and %d cars loaded\n", truckOnFerry,
+                    printf("CAPTAINCAPTAINCAPTAIN    Load one truck from the late queue, now %d trucks and %d cars loaded\n", truckOnFerry,
                            carOnFerry);
                 }
                 pthread_mutex_unlock(&mtxNumTruckLate);
@@ -216,7 +215,7 @@ void *captain(void *arg) {
                     carOnFerry++;
                     spotsOnFerry += SIZE_CAR;
                     sem_post(&semCarLate);
-                    printf("Load one car from the late queue, now %d trucks and %d cars loaded\n", truckOnFerry,
+                    printf("CAPTAINCAPTAINCAPTAIN    Load one car from the late queue, now %d trucks and %d cars loaded\n", truckOnFerry,
                            carOnFerry);
                 }
                 pthread_mutex_unlock(&mtxNumCarLate);
@@ -229,19 +228,19 @@ void *captain(void *arg) {
         for (i = 0; i < truckOnFerry; i++) {
             sem_wait(&semTruckBoard);
             truckBoarded++;
-            printf("One truck boarded, now %d trucks and %d cars on ferry\n", truckBoarded, carBoarded);
+            printf("CAPTAINCAPTAINCAPTAIN    One truck boarded, now %d trucks and %d cars on ferry\n", truckBoarded, carBoarded);
         }
         for (i = 0; i < carOnFerry; i++) {
             sem_wait(&semCarBoard);
             carBoarded++;
-            printf("One car boarded, now %d trucks and %d cars on ferry\n", truckBoarded, carBoarded);
+            printf("CAPTAINCAPTAINCAPTAIN    One car boarded, now %d trucks and %d cars on ferry\n", truckBoarded, carBoarded);
         }
 
         pthread_mutex_lock(&mtxFerryStatus);
         ferryStatus = FERRY_BOARDED;
         pthread_mutex_unlock(&mtxFerryStatus);
         // put all late arrival vehicles into waiting queue
-        printf("All vehicles boarded, move late arrivals into waiting queue\n");
+        printf("CAPTAINCAPTAINCAPTAIN    All vehicles boarded, move late arrivals into waiting queue\n");
 
         int truckSwitch = 0;
         int carSwitch = 0;
@@ -265,18 +264,18 @@ void *captain(void *arg) {
         pthread_mutex_unlock(&mtxNumCarLate);
         pthread_mutex_unlock(&mtxNumTruckLate);
 
-        printf("Need to move %d trucks and %d cars from late arrival to waiting\n", truckSwitch, carSwitch);
+        printf("CAPTAINCAPTAINCAPTAIN    Need to move %d trucks and %d cars from late arrival to waiting\n", truckSwitch, carSwitch);
         for(i=0;i<truckSwitch;i++) {
             sem_wait(&semTruckSwitch);
-            printf("Moved one truck from late queue into waiting queue\n");
+            printf("CAPTAINCAPTAINCAPTAIN    Moved one truck from late queue into waiting queue\n");
 
         }
         for(i=0;i<carSwitch;i++) {
             sem_wait(&semCarSwitch);
-            printf("Moved one car from late queue into waiting queue\n");
+            printf("CAPTAINCAPTAINCAPTAIN    Moved one car from late queue into waiting queue\n");
         }
 
-        printf("All late arrivals so far is moved into waiting queue\n");
+        printf("CAPTAINCAPTAINCAPTAIN    All late arrivals so far is moved into waiting queue\n");
 
         sail();
 
@@ -284,7 +283,7 @@ void *captain(void *arg) {
         ferryStatus = FERRY_UNLOADING;
         pthread_mutex_unlock(&mtxFerryStatus);
 
-        printf("Starts unloading\n");
+        printf("CAPTAINCAPTAINCAPTAIN    Starts unloading\n");
         for (i = 0; i < truckOnFerry; i++) {
             sem_post(&semTruckUnload);
         }
@@ -298,16 +297,17 @@ void *captain(void *arg) {
         for (i = 0; i < truckOnFerry; i++) {
             sem_wait(&semTruckLeft);
             truckUnloaded++;
-            printf("One truck is unloaded, now %d trucks and %d cars unloaded\n", truckUnloaded, carUnloaded);
+            printf("CAPTAINCAPTAINCAPTAIN    One truck is unloaded, now %d trucks and %d cars unloaded\n", truckUnloaded, carUnloaded);
         }
         for (i = 0; i < carOnFerry; i++) {
             sem_wait(&semCarLeft);
             carUnloaded++;
-            printf("One car is unloaded, now %d trucks and %d cars unloaded\n", truckUnloaded, carUnloaded);
+            printf("CAPTAINCAPTAINCAPTAIN    One car is unloaded, now %d trucks and %d cars unloaded\n", truckUnloaded, carUnloaded);
         }
-        printf("All vehicles unloaded\n");
+        printf("CAPTAINCAPTAINCAPTAIN    All vehicles unloaded\n");
         sail();
         load++;
+        printf("===============One more load is done, now %d loads finished\n===============", load);
     }
     pthread_mutex_lock(&mtxTerminate);
     flagTerminate = 1;
@@ -326,9 +326,9 @@ int checkStatus() {
 
 void *car(void *arg) {
     int id = *(int *) arg;
-    printf("Car %d comes\n", id);
+    printf("CARCARCARCARCARCARCAR    Car %d comes\n", id);
     if (checkStatus() == FERRY_LOADING) {
-        printf("Car %d is late \n", id);
+        printf("CARCARCARCARCARCARCAR    Car %d is late \n", id);
         pthread_mutex_lock(&mtxNumCarLate);
         numCarLate++;
         pthread_mutex_unlock(&mtxNumCarLate);
@@ -336,42 +336,42 @@ void *car(void *arg) {
         sem_wait(&semCarLate);
 
         if(checkStatus()==FERRY_LOADING) {
-            printf("Car %d is boarded\n", id);
+            printf("CARCARCARCARCARCARCAR    Car %d is boarded\n", id);
             sem_post(&semCarBoard);
         }
         else if(checkStatus()==FERRY_BOARDED) {
-            printf("Car %d is switched into waiting queue\n",id);
+            printf("CARCARCARCARCARCARCAR    Car %d is switched into waiting queue\n",id);
             sem_post(&semCarSwitch);
             pthread_mutex_lock(&mtxNumCarWait);
             numCarWait ++;
             pthread_mutex_unlock(&mtxNumCarWait);
             sem_post(&semNumCarWait);
             sem_wait(&semCarWait);
-            printf("Car %d is boarded\n", id);
+            printf("CARCARCARCARCARCARCAR    Car %d is boarded\n", id);
             sem_post(&semCarBoard);
         }
     }
     else {
-        printf("Car %d goes into waiting queue\n", id);
+        printf("CARCARCARCARCARCARCAR    Car %d goes into waiting queue\n", id);
         pthread_mutex_lock(&mtxNumCarWait);
         numCarWait ++;
         pthread_mutex_unlock(&mtxNumCarWait);
         sem_post(&semNumCarWait);
         sem_wait(&semCarWait);
-        printf("Car %d is boarded\n", id);
+        printf("CARCARCARCARCARCARCAR    Car %d is boarded\n", id);
         sem_post(&semCarBoard);
     }
 
     sem_wait(&semCarUnload);
-    printf("Car %d is unloaded and leaves\n", id);
+    printf("CARCARCARCARCARCARCAR    Car %d is unloaded and leaves\n", id);
     sem_post(&semCarLeft);
 }
 
 void *truck(void *arg) {
     int id = *(int *) arg;
-    printf("Truck %d comes\n", id);
+    printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d comes\n", id);
     if (checkStatus() == FERRY_LOADING) {
-        printf("Truck %d is late \n", id);
+        printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d is late \n", id);
         pthread_mutex_lock(&mtxNumTruckLate);
         numTruckLate++;
         pthread_mutex_unlock(&mtxNumTruckLate);
@@ -379,34 +379,34 @@ void *truck(void *arg) {
         sem_wait(&semTruckLate);
 
         if(checkStatus()==FERRY_LOADING) {
-            printf("Truck %d is boarded\n", id);
+            printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d is boarded\n", id);
             sem_post(&semTruckBoard);
         }
         else if(checkStatus()==FERRY_BOARDED) {
-            printf("Truck %d is switched into waiting queue\n", id);
+            printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d is switched into waiting queue\n", id);
             sem_post(&semTruckSwitch);
             pthread_mutex_lock(&mtxNumTruckWait);
             numTruckWait ++;
             pthread_mutex_unlock(&mtxNumTruckWait);
             sem_post(&semNumTruckWait);
             sem_wait(&semTruckWait);
-            printf("Truck %d is boarded\n", id);
+            printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d is boarded\n", id);
             sem_post(&semTruckBoard);
         }
     }
     else {
-        printf("Truck %d goes into waiting queue\n", id);
+        printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d goes into waiting queue\n", id);
         pthread_mutex_lock(&mtxNumTruckWait);
         numTruckWait ++;
         pthread_mutex_unlock(&mtxNumTruckWait);
         sem_post(&semNumTruckWait);
         sem_wait(&semTruckWait);
-        printf("Truck %d is boarded\n", id);
+        printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d is boarded\n", id);
         sem_post(&semTruckBoard);
     }
 
     sem_wait(&semTruckUnload);
-    printf("Truck %d is unloaded and leaves\n", id);
+    printf("TRUCKTRUCKTRUCKTRUCKT    Truck %d is unloaded and leaves\n", id);
     sem_post(&semTruckLeft);
 }
 
@@ -446,7 +446,7 @@ int main(void) {
     long long numCar = 0;
     while (1) {
         if (checkTerminate()) {
-            printf("The simulation is to terminated\n");
+            printf("=========================The simulation is to terminated===================\n");
             releaseResource();
             pthread_join(tCaptain, NULL);
             exit(0);
