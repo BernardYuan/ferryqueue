@@ -215,7 +215,7 @@ void *captain(void *arg) {
                     numCarLate--;
                     carOnFerry++;
                     spotsOnFerry += SIZE_CAR;
-                    sem_post(&semNumCarLate);
+                    sem_post(&semCarLate);
                     printf("Load one car from the late queue, now %d trucks and %d cars loaded\n", truckOnFerry,
                            carOnFerry);
                 }
