@@ -152,7 +152,7 @@ void captain() {
         int i;
         int trucksOnFerry = 0;
         int carsOnFerry = 0;
-        printf("CAPTAINCAPTAINCAP     STARTS LOADING\n");
+        printf("==============================STARTS LOADING=========================\n");
 
         while (spotsOnFerry < MAXSIZE_FERRY) {
 //            printf("CAPTAINCAPTAINCAP     Stil not Full\n");
@@ -257,7 +257,7 @@ void captain() {
             }
         }
 
-        printf("CAPTAINCAPTAINCAP     The ferry starts sailing\n");
+        printf("CAPTAINCAPTAINCAP     The ferry starts sailing to the destination\n");
         usleep(SAIL_TIME);
 
         printf("CAPTAINCAPTAINCAP     Unloading starts\n");
@@ -277,14 +277,16 @@ void captain() {
         }
 
         //starts sailing
+        printf("CAPTAINCAPTAINCAP     The ferry starts sailing back to home\n");
+        usleep(SAIL_TIME);
         load++;
-        printf("CAPTAINCAPTAINCAP     Unload done, now %d loads finished\n", load);
+        printf("=========================Arrived home, Now %d loads finished=========================\n", load);
     }
     bufCaptain.mtype = REQ_TERMINATE;
     bufCaptain.pid = localpid;
     bufCaptain.data = 0;
     msgsnd(queueToMain, &bufCaptain, length, 0);
-    printf("CAPTAINCAPTAINCAP     Captain's office hour is over\n");
+    printf("===============================Captain's office hour is over============================\n");
     exit(0);
 }
 
