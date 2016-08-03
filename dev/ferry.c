@@ -349,9 +349,8 @@ void truck() {
     bufTruck.pid = localpid;
     bufTruck.data = TYPE_TRUCK;
     msgsnd(queueToCaptain, &bufTruck, length, 0);
-    msgrcv(queueToVehicle, &bufTruck, length, localpid, 0);
 
-//
+    msgrcv(queueToVehicle, &bufTruck, length, localpid, 0);
 //     find out whether the vehicle is late
     if (bufTruck.data == RPL_VEHICLE_WAIT) {
         bufTruck.mtype = REQ_TRUCK_WAIT;
@@ -463,7 +462,7 @@ int main(void) {
 
             if (elapsed > lastArrive) {
                 if (!(pid = fork())) break;
-                lastArrive += maxArriveInterval;
+                lastArrive += rand() % maxArriveInterval;
             }
         }
         srand(time(NULL));
