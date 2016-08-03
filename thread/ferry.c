@@ -38,37 +38,6 @@ sem_t semTruckUnload;
 sem_t semCarUnload;
 sem_t semTruckLeft;
 sem_t semCarLeft;
-void releaseResource() {
-    removeMutex(&mtxFerryStatus);
-
-    removeMutex(&mtxNumTruckWait);
-    removeSem(&semNumTruckWait);
-    removeSem(&semTruckWait);
-
-    removeMutex(&mtxNumTruckLate);
-    removeSem(&semNumTruckLate);
-    removeSem(&semTruckLate);
-
-    removeMutex(&mtxNumCarWait);
-    removeSem(&semNumCarWait);
-    removeSem(&semCarWait);
-
-    removeMutex(&mtxNumCarLate);
-    removeSem(&semNumCarLate);
-    removeSem(&semCarLate);
-
-    removeMutex(&mtxTerminate);
-
-    removeSem(&semTruckSwitch);
-    removeSem(&semCarSwitch);
-    removeSem(&semTruckBoard);
-    removeSem(&semCarBoard);
-    removeSem(&semTruckUnload);
-    removeSem(&semCarUnload);
-    removeSem(&semTruckLeft);
-    removeSem(&semCarLeft);
-}
-
 void initMutex(pthread_mutex_t *mtx, const pthread_mutexattr_t *attr) {
     if (pthread_mutex_init(mtx, attr) == 0) printf("Initializing mutex success\n");
     else {
@@ -99,6 +68,37 @@ void removeSem(sem_t *sem) {
         printf("Destroying semaphore error\n");
     }
     else printf("Destroying semaphores success\n");
+}
+
+void releaseResource() {
+    removeMutex(&mtxFerryStatus);
+
+    removeMutex(&mtxNumTruckWait);
+    removeSem(&semNumTruckWait);
+    removeSem(&semTruckWait);
+
+    removeMutex(&mtxNumTruckLate);
+    removeSem(&semNumTruckLate);
+    removeSem(&semTruckLate);
+
+    removeMutex(&mtxNumCarWait);
+    removeSem(&semNumCarWait);
+    removeSem(&semCarWait);
+
+    removeMutex(&mtxNumCarLate);
+    removeSem(&semNumCarLate);
+    removeSem(&semCarLate);
+
+    removeMutex(&mtxTerminate);
+
+    removeSem(&semTruckSwitch);
+    removeSem(&semCarSwitch);
+    removeSem(&semTruckBoard);
+    removeSem(&semCarBoard);
+    removeSem(&semTruckUnload);
+    removeSem(&semCarUnload);
+    removeSem(&semTruckLeft);
+    removeSem(&semCarLeft);
 }
 
 void init() {
