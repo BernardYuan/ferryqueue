@@ -42,7 +42,7 @@ void initMutex(pthread_mutex_t *mtx, const pthread_mutexattr_t *attr) {
     if (pthread_mutex_init(mtx, attr) == 0) printf("Initializing mutex success\n");
     else {
         printf("Initializing mutex failure\n");
-        releaseResource();
+//        releaseResource();
         exit(1);
     }
 }
