@@ -155,7 +155,7 @@ void *captain(void *arg) {
         int truckOnFerry = 0;
         int carOnFerry = 0;
         int spotsOnFerry = 0;
-        while (truckOnFerry < MAX_TRUCK && spotsOnFerry < SIZE_FERRY - 2) {
+        while (truckOnFerry < MAX_TRUCK && spotsOnFerry <= SIZE_FERRY - 2) {
             pthread_mutex_lock(&mtxNumTruckWait);
             if (numTruckWait > 0) {
                 sem_wait(&semNumTruckWait);
@@ -194,7 +194,7 @@ void *captain(void *arg) {
 
         while (spotsOnFerry < SIZE_FERRY) {
             // load trucks from late arrival
-            if (spotsOnFerry < SIZE_FERRY - 2 && truckOnFerry < MAX_TRUCK) {
+            if (spotsOnFerry <= SIZE_FERRY - 2 && truckOnFerry < MAX_TRUCK) {
                 pthread_mutex_lock(&mtxNumTruckLate);
                 if (numTruckLate > 0) {
                     sem_wait(&semNumTruckLate);
