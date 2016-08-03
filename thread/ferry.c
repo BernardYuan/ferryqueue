@@ -277,6 +277,8 @@ void *captain(void *arg) {
             printf("Moved one car from late queue into waiting queue\n");
         }
 
+        printf("All late arrivals so far is moved into waiting queue\n");
+
         sail();
 
         pthread_mutex_lock(&mtxFerryStatus);
@@ -335,12 +337,12 @@ void *car(void *arg) {
         sem_wait(&semCarLate);
 
         if(checkStatus()==FERRY_LOADING) {
-            sem_post(&semCarBoard);
             printf("Car %d is boarded\n", id);
+            sem_post(&semCarBoard);
         }
         else if(checkStatus()==FERRY_BOARDED) {
-            sem_post(&semCarSwitch);
             printf("Car %d is switched into waiting queue\n",id);
+            sem_post(&semCarSwitch);
             pthread_mutex_lock(&mtxNumCarWait);
             numCarWait ++;
             pthread_mutex_unlock(&mtxNumCarWait);
@@ -378,12 +380,12 @@ void *truck(void *arg) {
         sem_wait(&semTruckLate);
 
         if(checkStatus()==FERRY_LOADING) {
-            sem_post(&semTruckBoard);
             printf("Truck %d is boarded\n", id);
+            sem_post(&semTruckBoard);
         }
         else if(checkStatus()==FERRY_BOARDED) {
-            sem_post(&semTruckSwitch);
             printf("Truck %d is switched into waiting queue\n", id);
+            sem_post(&semTruckSwitch);
             pthread_mutex_lock(&mtxNumTruckWait);
             numTruckWait ++;
             pthread_mutex_unlock(&mtxNumTruckWait);
