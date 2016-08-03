@@ -248,7 +248,7 @@ void *captain(void *arg) {
         //keep in this order to avoid deadlock
         pthread_mutex_lock(&mtxNumTruckLate);
         pthread_mutex_lock(&mtxNumCarLate);
-        while (numTruckLate > 0 && numCarLate > 0) {
+        while (numTruckLate > 0 || numCarLate > 0) {
             if (numTruckLate > 0) {
                 numTruckLate --;
                 sem_wait(&semNumTruckLate);
@@ -261,8 +261,6 @@ void *captain(void *arg) {
                 sem_post(&semCarLate);
                 carSwitch ++;
             }
-
-            if(numCarLate <= 0 && numTruckLate <= 0) break;
         }
         pthread_mutex_unlock(&mtxNumCarLate);
         pthread_mutex_unlock(&mtxNumTruckLate);
