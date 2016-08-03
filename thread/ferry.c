@@ -467,6 +467,7 @@ int main(void) {
                 int arg = numCar;
                 pthread_create(&tCar, NULL, car, (void *) &arg);
             }
+            arriveNext += maxVehicleInterval;
         }
     }
 }
