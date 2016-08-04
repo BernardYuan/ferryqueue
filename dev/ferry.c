@@ -68,7 +68,7 @@ void destroyQueue() {
     }
     else printf("queueToMain destroyed\n");
 
-    if(msgctl(queueLeave, IPC_RMID, 0) == -1) {
+    if (msgctl(queueLeave, IPC_RMID, 0) == -1) {
         printf("QueueLeave not destroyed\n");
     }
     else printf("queueLeave destroyed\n");
@@ -132,28 +132,36 @@ void createQueue() {
     }
     printf("Queue To Main ID: %d \n", queueOnBoard);
 
-    queueLeave = msgget(IPC_PRIVATE, IPC_CREAT | IPC_EXCL|0660);
-    if(queueLeave <= 0) {
+    queueLeave = msgget(IPC_PRIVATE, IPC_CREAT | IPC_EXCL | 0660);
+    if (queueLeave <= 0) {
         printf("QueueLeave not created\n");
         destroyQueue();
         exit(0);
     }
     printf("QueueLeave ID: %d\n", queueLeave);
 }
-void msgReceive(int msqid, void *msgp, size_t msgsz, long int msgtype, int msgflg) {
-    if(msgrcv(msqid, msgp, msgsz, msgtype, msgflg)==-1) {
-        printf("Receive Message Error\n");
-        exit(0);
+
+int msgReceive(int msqid, void *msgp, size_t msgsz, long int msgtype, int msgflg) {
+    if (msgflg == IPC_NOWAIT) {
+        return msgrcv(msqid, msgp, msgsz, msgtype, msgflg);
     }
-    else return ;
+    else {
+        int ret = msgrcv(msqid, msgp, msgsz, msgtype, msgflg);
+        if (ret == -1) {
+            printf("Receive Message Error\n");
+            exit(0);
+        }
+        else return ret;
+    }
+
 }
 
 void msgSend(int msqid, void *msgp, size_t msgsz, int msgflg) {
-    if(msgsnd(msqid, msgp, msgsz, msgflg)==-1) {
+    if (msgsnd(msqid, msgp, msgsz, msgflg) == -1) {
         printf("Send Message Error\n");
         exit(0);
     }
-    else return ;
+    else return;
 }
 
 void captain() {
