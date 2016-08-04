@@ -429,9 +429,9 @@ int main(void) {
 //    printf("size of data: %d\n", sizeof(bufMain.data));
 //    printf("length:%d\n", length);
 
-    printf("Input the maximum interval (integer, ms) of the arrival of each vehicle:");
+    printf("Input the maximum interval (integer, us) of the arrival of each vehicle:");
     scanf("%lld", &maxArriveInterval);
-    printf("Input the probability of truck (integer, %%):");
+    printf("Input the probability of truck [0,100):");
     scanf("%d", &truckProb);
 
     // start time
