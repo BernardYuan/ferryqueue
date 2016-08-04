@@ -38,6 +38,7 @@
 #define REQ_UNLOAD 12
 #define ACK_UNLOADED 13
 #define REQ_TERMINATE 14
+#define ACK_LEAVE 15
 typedef struct mymsgbuf {
     long mtype;
     pid_t pid;
