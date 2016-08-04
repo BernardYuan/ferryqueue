@@ -148,7 +148,7 @@ int msgReceive(int msqid, void *msgp, size_t msgsz, long int msgtype, int msgflg
     else {
         int ret = msgrcv(msqid, msgp, msgsz, msgtype, msgflg);
         if (ret == -1) {
-            printf("Receive Message Error\n");
+//            printf("Receive Message Error\n");
             exit(0);
         }
         else return ret;
