@@ -131,8 +131,8 @@ int main() {
     while (1) {
         /* If termination message is received from the captain */
         /* Reply to the captain to indicate you heard then exit program*/
-        if (msgrcv(qidToVehicle, &buf, length, TERMINATION, IPC_NOWAIT) != -1) {
-            msgsnd(qidToCaptainA, &buf, length, 0);
+        if (msgReceive(qidToVehicle, &buf, length, TERMINATION, IPC_NOWAIT) != -1) {
+            msgSend(qidToCaptainA, &buf, length, 0);
             break;
         }
         // TO DO
@@ -154,7 +154,7 @@ void vehicle(int type) {
         buf.arrivalInfo[0] = lastArrivalTime;
         buf.arrivalInfo[1]++;
         printf("Vehicle - MSG FROM CAR NUMBER %d: %ld %d\n", buf.arrivalInfo[1], buf.mtype, buf.arrivalInfo[0]);
-        msgsnd(waitingLane, &buf, length, 0);
+        msgSend(waitingLane, &buf, length, 0);
     }
     else {
         /* This is a truck */
@@ -164,7 +164,7 @@ void vehicle(int type) {
         printf("Vehicle - MSG FROM TRUCK NUMBER %d: %ld %d\n", buf.arrivalInfo[1], buf.mtype, buf.arrivalInfo[0]);
     }
 
-    if (msgrcv(qidToVehicle, &buf, length, START_LOADING, IPC_NOWAIT) != -1) {
+    if (msgReceive(qidToVehicle, &buf, length, START_LOADING, IPC_NOWAIT) != -1) {
         /* Captain has sent a message that loading should begin */
         /* This message has just been received. */
         /* Have any further vehicles that arrive wait in the */
@@ -182,14 +182,14 @@ void vehicle(int type) {
 
         /* gate is open, new vehicles are going into the waiting lane */
         /* let vehicles in the empty lane join the loading queue */
-        while (msgrcv(emptyLane, &buf, length, 0, IPC_NOWAIT) != -1) {
-            msgsnd(qidToCaptainA, &buf, length, 0);
+        while (msgReceive(emptyLane, &buf, length, 0, IPC_NOWAIT) != -1) {
+            msgSend(qidToCaptainA, &buf, length, 0);
         }
 
         /* Tell captain vehicles are ready to load */
         buf.mtype = START_LOADING;
         printf("msg received by queue: switching\n");
-        msgsnd(qidToCaptainA, &buf, length, 0);
+        msgSend(qidToCaptainA, &buf, length, 0);
     }
 
 
@@ -199,15 +199,15 @@ void vehicle(int type) {
         /* The captain must also have sent a message indicating this */
         /* vehicle should load. The vehicle process replys with a */
         /* message indicating that the vehicle is loaded */
-        if (msgrcv(qidToVehicle, &buf, length, CAR_LOADING, IPC_NOWAIT) != -1) {
+        if (msgReceive(qidToVehicle, &buf, length, CAR_LOADING, IPC_NOWAIT) != -1) {
             buf.mtype = CAR_LOADED;
             printf("Car loaded\n");
-            msgsnd(qidToCaptainA, &buf, length, 0);
+            msgSend(qidToCaptainA, &buf, length, 0);
         }
-        if (msgrcv(qidToVehicle, &buf, length, TRUCK_LOADING, IPC_NOWAIT) != -1) {
+        if (msgReceive(qidToVehicle, &buf, length, TRUCK_LOADING, IPC_NOWAIT) != -1) {
             buf.mtype = TRUCK_LOADED;
             printf("Truck loaded\n");
-            msgsnd(qidToCaptainA, &buf, length, 0);
+            msgSend(qidToCaptainA, &buf, length, 0);
         }
 
 
@@ -218,7 +218,7 @@ void vehicle(int type) {
         /* and reply indicating that it knows that loading is complete*/
         /* and the ferry is sailing */
         /* The ferry can sail when this ACK is received */
-        if (msgrcv(qidToVehicle, &buf, length, LOADING_COMPLETE, IPC_NOWAIT) != -1) {
+        if (msgReceive(qidToVehicle, &buf, length, LOADING_COMPLETE, IPC_NOWAIT) != -1) {
             buf.mtype = LOADING_COMPLETE_ACK;
             captainState = SAILING;
             printf("Captain state is SAILING\n");
@@ -227,7 +227,7 @@ void vehicle(int type) {
         /* Captain has sent a message that unloading should begin */
         /* This message has just been received. */
         /* reply to captain indicating message was received */
-        if (msgrcv(qidToVehicle, &buf, length, FERRY_ARRIVED, IPC_NOWAIT) != -1) {
+        if (msgReceive(qidToVehicle, &buf, length, FERRY_ARRIVED, IPC_NOWAIT) != -1) {
             captainState = DOCKED_UNLOADING;
             fullSpotsOnFerry = 0;
             printf("Captain state is DOCKED_UNLOADING\n");
@@ -235,7 +235,7 @@ void vehicle(int type) {
             msgsnd(qidToCaptainA, &buf, length, 0);
         }
 
-        if (msgrcv(qidToVehicle, &buf, length, UNLOADING_COMPLETE, IPC_NOWAIT) != -1) {
+        if (msgReceive(qidToVehicle, &buf, length, UNLOADING_COMPLETE, IPC_NOWAIT) != -1) {
             buf.mtype = UNLOADING_COMPLETE_ACK;
             captainState = SAILING_BACK;
             printf("Captain state is SAILING_BACK\n");
@@ -243,7 +243,7 @@ void vehicle(int type) {
         }
         /* received message that ferry has arrived at loading area */
         /* reply to captain indicating message was received */
-        if (msgrcv(qidToVehicle, &buf, length, FERRY_RETURNED, IPC_NOWAIT) != -1) {
+        if (msgReceive(qidToVehicle, &buf, length, FERRY_RETURNED, IPC_NOWAIT) != -1) {
             captainState = DOCKED_LOADING;
             printf("Captain state is DOCKED_LOADING\n");
             buf.mtype = FERRY_RETURNED_ACK;
@@ -262,7 +262,7 @@ void captain() {
         /* Opening loading area gates */
         buf.mtype = START_LOADING;
         msgsnd(qidToVehicle, &buf, length, 0);
-        msgrcv(qidToCaptainA, &buf, length, START_LOADING, 0);
+        msgReceive(qidToCaptainA, &buf, length, START_LOADING, 0);
         /* all cars from the waiting lane are now in the loading queue */
         /* The gate is closed */
         /* make captain remember which lane outside the loading area */
@@ -284,7 +284,7 @@ void captain() {
         trucksOn = 0;
         fullSpotsOnFerry = 0;
         for (k = 0; k < 2; k++) {
-            if (msgrcv(qidToCaptainA, &buf, length, TRUCK_ARRIVING, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, TRUCK_ARRIVING, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("CAPTAIN - TRUCK NUMBER %d: %ld %d\n", buf.arrivalInfo[1], buf.mtype, buf.arrivalInfo[0]);
                 fullSpotsOnFerry += 2;
@@ -295,7 +295,7 @@ void captain() {
         }
 
         for (k = 0; k < TOTAL_SPOTS_ON_FERRY; k++) {
-            if (msgrcv(qidToCaptainA, &buf, length, CAR_ARRIVING, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, CAR_ARRIVING, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("CAPTAIN - CAR NUMBER %d: %ld %d\n",
                        buf.arrivalInfo[1], buf.mtype, buf.arrivalInfo[0]);
@@ -314,7 +314,7 @@ void captain() {
                 msgType = 0;
             }
 
-            msgrcv(waitingLane, &buf, length, msgType, 0);
+            msgReceive(waitingLane, &buf, length, msgType, 0);
             printf("                                            ");
             printf("CAPTAIN NEW ARRIVALS - MESSAGE NUMBER %d: %ld %d\n",
                    buf.arrivalInfo[1], buf.mtype, buf.arrivalInfo[0]);
@@ -334,14 +334,14 @@ void captain() {
         /* across the river */
         fullSpotsOnFerry = 0;
         while (fullSpotsOnFerry < 6) {
-            if (msgrcv(qidToCaptainA, &buf, length, CAR_LOADED, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, CAR_LOADED, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("Captain knows car loaded\n");
                 fullSpotsOnFerry++;
                 buf.mtype = CAR_TRAVELING;
                 msgsnd(qidToVehicle, &buf, length, 0);
             }
-            if (msgrcv(qidToCaptainA, &buf, length, TRUCK_LOADED, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, TRUCK_LOADED, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("aptain knows truck loaded\n");
                 fullSpotsOnFerry += 2;
@@ -359,7 +359,7 @@ void captain() {
         /* He waits for a response before continuing */
         buf.mtype = LOADING_COMPLETE;
         msgsnd(qidToVehicle, &buf, length, 0);
-        msgrcv(qidToCaptainA, &buf, length, LOADING_COMPLETE_ACK, 0);
+        msgReceive(qidToCaptainA, &buf, length, LOADING_COMPLETE_ACK, 0);
         printf("                                            ");
         printf("Captain notified: vehicle process knows all vehicles are loaded\n");
 
@@ -381,7 +381,7 @@ void captain() {
         printf("Ferry has crossed the  river, notifying vehicle\n");
         buf.mtype = FERRY_ARRIVED;
         msgsnd(qidToVehicle, &buf, length, 0);
-        msgrcv(qidToCaptainA, &buf, length, FERRY_ARRIVED_ACK, 0);
+        msgReceive(qidToCaptainA, &buf, length, FERRY_ARRIVED_ACK, 0);
 
 
         /* When the captain receives the reply to the docked at destination */
@@ -399,14 +399,14 @@ void captain() {
         printf("beginning to unload\n");
         fullSpotsOnFerry = 0;
         while (fullSpotsOnFerry < 6) {
-            if (msgrcv(qidToCaptainA, &buf, length, CAR_ARRIVED, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, CAR_ARRIVED, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("Car unloading\n");
                 fullSpotsOnFerry++;
                 buf.mtype = CAR_UNLOADING;
                 msgsnd(qidToVehicle, &buf, length, 0);
             }
-            if (msgrcv(qidToCaptainA, &buf, length, TRUCK_ARRIVED, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, TRUCK_ARRIVED, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("Truck unloading\n");
                 fullSpotsOnFerry += 2;
@@ -421,12 +421,12 @@ void captain() {
         /* is empty */
         fullSpotsOnFerry = 0;
         while (fullSpotsOnFerry < 6) {
-            if (msgrcv(qidToCaptainA, &buf, length, CAR_UNLOADED, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, CAR_UNLOADED, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("Captain knows car is unloaded\n");
                 fullSpotsOnFerry++;
             }
-            if (msgrcv(qidToCaptainA, &buf, length, TRUCK_UNLOADED, IPC_NOWAIT) != -1) {
+            if (msgReceive(qidToCaptainA, &buf, length, TRUCK_UNLOADED, IPC_NOWAIT) != -1) {
                 printf("                                            ");
                 printf("Captain knows truck is unloaded\n");
                 fullSpotsOnFerry += 2;
@@ -446,7 +446,7 @@ void captain() {
         printf("                                            ");
         printf("Captain state is SAILING_BACK\n");
         msgsnd(qidToVehicle, &buf, length, 0);
-        msgrcv(qidToCaptainA, &buf, length, UNLOADING_COMPLETE_ACK, 0);
+        msgReceive(qidToCaptainA, &buf, length, UNLOADING_COMPLETE_ACK, 0);
         printf("                                            ");
         pr intf("Captain is sailing back to loading dock\n");
 
@@ -458,7 +458,7 @@ void captain() {
         printf("                                            ");
         printf("Captain state is DOCKED_LOADING\n");
         msgsnd(qidToVehicle, &buf, length, 0);
-        msgrcv(qidToCaptainA, &buf, length, FERRY_RETURNED_ACK, 0);
+        msgReceive(qidToCaptainA, &buf, length, FERRY_RETURNED_ACK, 0);
         printf("                                            ");
         printf("Ferry has returned for another load\n");
 
@@ -473,7 +473,7 @@ void captain() {
 void removeQueues() {
     buf.mtype = TERMINATION;
     msgsnd(qidToVehicle, &buf, length, 0);
-    msgrcv(qidToCaptainA, &buf, length, TERMINATION, 0);
+    msgReceive(qidToCaptainA, &buf, length, TERMINATION, 0);
     msgctl(qidToCaptainA, IPC_RMID, 0);
     msgctl(qidToCaptainB, IPC_RMID, 0);
     msgctl(qidToCaptainC, IPC_RMID, 0);
