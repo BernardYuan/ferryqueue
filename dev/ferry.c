@@ -4,11 +4,13 @@
 
 #include "ferry.h"
 
+// message structures
 mess_t bufMain;
 mess_t bufCaptain;
 mess_t bufCar;
 mess_t bufTruck;
 
+// parameters required
 int length;
 // time parameters
 struct timeval last;
@@ -31,6 +33,7 @@ int processCaptain;
 int groupCar = 661;
 int groupTruck = 662;
 
+//destroy the message queues
 void destroyQueue() {
     if (msgctl(queueToVehicle, IPC_RMID, 0) == -1) {
         printf("queueToVehicle not destroyed\n");
@@ -74,6 +77,7 @@ void destroyQueue() {
     else printf("queueLeave destroyed\n");
 }
 
+// create message queues
 void createQueue() {
     queueToVehicle = msgget(IPC_PRIVATE, IPC_CREAT | IPC_EXCL | 0660);
     if (queueToVehicle == -1) {
@@ -140,7 +144,7 @@ void createQueue() {
     }
     printf("QueueLeave ID: %d\n", queueLeave);
 }
-
+// a wrapper function for receiving the message
 int msgReceive(int msqid, void *msgp, size_t msgsz, long int msgtype, int msgflg) {
     if (msgflg == IPC_NOWAIT) {
         return msgrcv(msqid, msgp, msgsz, msgtype, msgflg);
@@ -155,7 +159,7 @@ int msgReceive(int msqid, void *msgp, size_t msgsz, long int msgtype, int msgflg
     }
 
 }
-
+// a wrapper function for sending the message
 void msgSend(int msqid, void *msgp, size_t msgsz, int msgflg) {
     if (msgsnd(msqid, msgp, msgsz, msgflg) == -1) {
         printf("Send Message Error\n");
@@ -164,6 +168,7 @@ void msgSend(int msqid, void *msgp, size_t msgsz, int msgflg) {
     else return;
 }
 
+// code for captain process
 void captain() {
     pid_t localpid = getpid();
     int load = 0;
@@ -193,7 +198,6 @@ void captain() {
         int carsOnFerry = 0;
 
         while (spotsOnFerry < MAXSIZE_FERRY) {
-//            printf("CAPTAINCAPTAINCAP     Stil not Full\n");
 
             // now get all late vehicles into the late queue
             while (msgReceive(queueToCaptain, &bufCaptain, length, REQ_CAR_ARRIVE, IPC_NOWAIT) != -1) {
@@ -212,6 +216,7 @@ void captain() {
                 msgSend(queueToVehicle, &bufCaptain, length, 0);
             }
 
+            // get truck from waiting queue
             while (trucksOnFerry < MAXNUM_TRUCK && spotsOnFerry <= MAXSIZE_FERRY - SIZE_TRUCK &&
                    (msgReceive(queueWait, &bufCaptain, length, REQ_TRUCK_WAIT, IPC_NOWAIT) != -1)) {
 
@@ -224,7 +229,7 @@ void captain() {
                 printf("CAPTAINCAPTAINCAP     Load Truck %ld from waiting queue, now %d trucks and %d cars on ferry\n",
                        bufCaptain.mtype, trucksOnFerry, carsOnFerry);
             }
-
+            // get car from waiting queue
             while (spotsOnFerry < MAXSIZE_FERRY &&
                    (msgReceive(queueWait, &bufCaptain, length, REQ_CAR_WAIT, IPC_NOWAIT) != -1)) {
                 bufCaptain.mtype = bufCaptain.pid;
@@ -264,8 +269,7 @@ void captain() {
             }
         }
 
-        // now the ferry is full, put the rest of the late arrival vehicles into the late queue
-        // now get all late vehicles into the late queue
+        // now the ferry is full, put the rest of the late arrival vehicles into the waiting queue
         while (msgReceive(queueLate, &bufCaptain, length, REQ_CAR_LATE, IPC_NOWAIT) != -1) {
             bufCaptain.mtype = bufCaptain.pid;
             bufCaptain.pid = localpid;
@@ -285,6 +289,7 @@ void captain() {
         usleep(SAIL_TIME);
         printf("CAPTAINCAPTAINCAP     Unloading starts\n");
 
+        // unload all the vehicles on board
         bufCaptain.mtype = TYPE_TRUCK;
         bufCaptain.pid = localpid;
         bufCaptain.data = 0;
@@ -292,6 +297,7 @@ void captain() {
         bufCaptain.mtype = TYPE_CAR;
         for (i = 0; i < carsOnFerry; i++) msgSend(queueUnloading, &bufCaptain, length, 0);
 
+        // wait till all vehicles are unloaded
         int truckLeft = 0;
         int carLeft = 0;
         while (truckLeft < trucksOnFerry && carLeft < carsOnFerry) {
@@ -301,12 +307,14 @@ void captain() {
                 printf("CAPTAINCAPTAINCAP     Captain receives ACK's from %d trucks and %d cars\n", truckLeft, carLeft);
             }
         }
-        //starts sailing
+
+        //starts sailing back
         printf("CAPTAINCAPTAINCAP     The ferry starts sailing back to home\n");
         usleep(SAIL_TIME);
         load++;
         printf("=========================Arrived home, Now %d loads finished=========================\n", load);
     }
+    // inform the parent process that the simulation should be terminated
     bufCaptain.mtype = REQ_TERMINATE;
     bufCaptain.pid = localpid;
     bufCaptain.data = 0;
@@ -320,38 +328,44 @@ void car() {
     printf("CARCARCARCARCARCAR    Car %d comes\n", localpid);
     setpgid(localpid, groupCar);
 
+    // inform the captain that a new car arrives
     bufCar.mtype = REQ_CAR_ARRIVE;
     bufCar.pid = localpid;
     bufCar.data = TYPE_CAR;
     msgSend(queueToCaptain, &bufCar, length, 0);
 
     msgReceive(queueToVehicle, &bufCar, length, localpid, 0);
-
     // find out whether the vehicle is late
     if (bufCar.data == RPL_VEHICLE_WAIT) {
+        // not late
         bufCar.mtype = REQ_CAR_WAIT;
         bufCar.pid = localpid;
         bufCar.data = 0;
         msgSend(queueWait, &bufCar, length, 0);
+        printf("CARCARCARCARCARCAR    Car %d goes to the waiting queue\n", localpid);
         msgReceive(queueOnBoard, &bufCar, length, localpid, 0);
     } else if (bufCar.data == RPL_VEHICLE_LATE) {
+        // the car is late
         bufCar.mtype = REQ_CAR_LATE;
         bufCar.pid = localpid;
         bufCar.data = 0;
         msgSend(queueLate, &bufCar, length, 0);
+        printf("CARCARCARCARCARCAR    Car %d is late\n", localpid);
         msgReceive(queueLate, &bufCar, length, localpid, 0);
-
+        // if WAIT msg, then put into waiting queue
+        // else it is loaded
         if (bufCar.data == RPL_VEHICLE_WAIT) {
             bufCar.mtype = REQ_CAR_WAIT;
             bufCar.pid = localpid;
             bufCar.data = 0;
             msgSend(queueWait, &bufCar, length, 0);
-            printf("CARCARCARCARCARCAR    Car %d is moved into the waiting queue\n", localpid);
+            printf("CARCARCARCARCARCAR    Car %d is moved from the late queue into the waiting queue\n", localpid);
             msgReceive(queueOnBoard, &bufCar, length, localpid, 0);
         }
     }
 
     printf("CARCARCARCARCARCAR    Car %d is boarded\n", localpid);
+    //waiting unloading
     msgReceive(queueUnloading, &bufCar, length, TYPE_CAR, 0);
     printf("CARCARCARCARCARCAR    Car %d is unloaded\n", localpid);
     bufCar.mtype = ACK_LEAVE;
@@ -365,10 +379,12 @@ void truck() {
     printf("TRUCKTRUCKTRUCKTRU    Truck %d comes\n", localpid);
     setpgid(localpid, groupTruck);
 
+    //inform the captain that a new truck arrives
     bufTruck.mtype = REQ_TRUCK_ARRIVE;
     bufTruck.pid = localpid;
     bufTruck.data = TYPE_TRUCK;
     msgSend(queueToCaptain, &bufTruck, length, 0);
+
 
     msgReceive(queueToVehicle, &bufTruck, length, localpid, 0);
 //     find out whether the vehicle is late
@@ -377,6 +393,7 @@ void truck() {
         bufTruck.pid = localpid;
         bufTruck.data = 0;
         msgSend(queueWait, &bufTruck, length, 0);
+        printf("TRUCKTRUCKTRUCKTRU    Truck %d goes into the waiting queue\n", localpid);
         msgReceive(queueOnBoard, &bufTruck, length, localpid, 0);
 
     } else if (bufTruck.data == RPL_VEHICLE_LATE) {
@@ -384,7 +401,7 @@ void truck() {
         bufTruck.pid = localpid;
         bufTruck.data = 0;
         msgSend(queueLate, &bufTruck, length, 0);
-
+        printf("TRUCKTRUCKTRUCKTRU    Truck %d is late\n", localpid);
         msgReceive(queueLate, &bufTruck, length, localpid, 0);
 
         if (bufTruck.data == RPL_VEHICLE_WAIT) {
@@ -392,6 +409,7 @@ void truck() {
             bufTruck.pid = localpid;
             bufTruck.data = 0;
             msgSend(queueWait, &bufTruck, length, 0);
+            printf("TRUCKTRUCKTRUCKTRU    Truck %d is moved from late queue into waiting queue\n", localpid);
             msgReceive(queueOnBoard, &bufTruck, length, localpid, 0);
         }
     }
@@ -404,7 +422,10 @@ void truck() {
     msgSend(queueLeave, &bufTruck, length, 0);
 }
 
+// terminating the simulation, which kills all the processes
+// and wait till all process exits
 void terminateSimulation() {
+
     printf("==================================================================\n");
     printf("========================Termination starts========================\n");
     printf("==================================================================\n");
@@ -437,13 +458,8 @@ int main(void) {
 
     // define the length of message
     length = sizeof(mess_t) - sizeof(long);
-//    printf("size of struct: %d\n", sizeof(mess_t));
-//    printf("size of long: %d\n", sizeof(long));
-//    printf("size of mtype: %d\n", sizeof(bufMain.mtype));
-//    printf("size of pid_t: %d\n", sizeof(bufMain.pid));
-//    printf("size of data: %d\n", sizeof(bufMain.data));
-//    printf("length:%d\n", length);
 
+    // User input
     printf("Input the maximum interval (integer, us) of the arrival of each vehicle:");
     scanf("%lld", &maxArriveInterval);
     printf("Input the probability of truck [0,100):");
@@ -470,17 +486,18 @@ int main(void) {
                 printf("Simulation ends\n");
                 exit(0);
             }
-
-
+            // comput time
             gettimeofday(&current, NULL);
             elapsed += (current.tv_sec - last.tv_sec) * 1000000 + (current.tv_usec - last.tv_usec);
             last = current;
 
+            // if greater than lastArrive time, generate a new vehicle
             if (elapsed > lastArrive) {
                 if (!(pid = fork())) break;
                 lastArrive += rand() % maxArriveInterval;
                 // check zombie Process
                 zombieTick++;
+                // every 10 new vehicles are generated, kill the zombie processes
                 if (zombieTick % 10 == 0) {
                     int pd;
                     int sts;
