@@ -2,7 +2,7 @@
 // Created by Bernard Yuan on 2016-08-02.
 //
 
-#include "ferry.h"
+#include "ferryThread.h"
 
 //the mutex of the ferry status
 pthread_mutex_t mtxFerryStatus;
