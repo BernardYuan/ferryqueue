@@ -2,7 +2,7 @@
 // Created by Bernard Yuan on 2016-07-30.
 //
 
-#include "ferryMsg.h"
+#include "FerryMsg.h"
 
 // message structures
 mess_t bufMain;
